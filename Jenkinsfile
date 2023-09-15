@@ -66,7 +66,9 @@ pipeline {
             body: "Please go to ${BUILD_URL} and verify the build"
         }
         success {
-            mail bcc: '', body: """Hi Team,
+            mail bcc: '', body: """Hi Welome to Jenkins email alert
+        Thanks
+        Ganesh,
 
 Build #$BUILD_NUMBER is successful, please go through the url
 
@@ -80,7 +82,7 @@ Ganesh""", cc: '', from: '', replyTo: '', subject: 'BUILD SUCCESS NOTIFICATION',
         failure {
             mail bcc: '', body: """Hi Welome to Jenkins email alert
         Thanks
-        Ganesh,,
+        Ganesh,
 
 Build #$BUILD_NUMBER is unsuccessful, please go through the url
 
