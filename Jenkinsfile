@@ -1,6 +1,5 @@
 pipeline{
     stage('SCM Checkout'){
-        git 
     }
     stage('Compile-Package'){
         //Get maven home path
