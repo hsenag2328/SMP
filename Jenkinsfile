@@ -1,90 +1,51 @@
 pipeline {
-    agent { label 'Built-In Node'  }
+    agent any
+
+    environment {
+        // Define environment variables if needed
+    }
+
     stages {
-        stage('Build Application') {
+        stage('Checkout') {
             steps {
-            }
-            post {
-                success {
-                    echo "Now Archiving the Artifacts...."
-                    archiveArtifacts artifacts: '**/*.war'
-                }
+                // Checkout the source code from your Git repository
+                checkout scm
             }
         }
-        stage('Create Tomcat Image') {
-            agent {
-                label 'testnode'
-            }
+
+        stage('Install Dependencies') {
             steps {
-                copyArtifacts filter: '**/*.war', fingerprintArtifacts: true, projectName: env.JOB_NAME, selector: specific(env.BUILD_NUMBER)
-                echo "Building docker image"
-                sh '''
-                original_pwd=$(pwd -P)
-                cd jenkins/java-tomcat-sample
-                docker build -t localtomcatimg:$BUILD_NUMBER .
-                cd $original_pwd
-                sh '''
+                // Install Node.js and npm (if not already installed)
+                sh 'curl -sL https://deb.nodesource.com/setup_14.x | bash -'
+                sh 'apt-get install -y nodejs'
+
+                // Install project dependencies (e.g., npm install)
+                sh 'npm install'
             }
         }
-        stage('Deploy to Stagging Env') {
-            agent {
-                label 'testnode'
-            }
+
+        stage('Build SPA') {
             steps {
-                echo "Running app on stagging env"
-                sh '''
-                docker stop tomcatInstanceStaging || true
-                docker rm tomcatInstanceStaging || true
-                docker run -itd --name tomcatInstanceStaging -p 8082:8080 localtomcatimg:$BUILD_NUMBER
-                sh '''
+                // Build your SPA (e.g., npm run build)
+                sh 'npm run build'
             }
         }
-        stage('Deploy Production Environment') {
-            agent {
-                label 'testnode'
-            }
+
+        stage('Deploy SPA') {
             steps {
-                timeout(time:1, unit:'DAYS'){
-                input message:'Approve PRODUCTION Deployment?'
-                }
-                echo "Running app on Prod env"
-                sh '''
-                docker stop tomcatInstanceProd || true
-                docker rm tomcatInstanceProd || true
-                docker run -itd --name tomcatInstanceProd -p 8083:8080 localtomcatimg:$BUILD_NUMBER
-                '''
+                // Copy the built SPA to your deployment location (e.g., a web server)
+                // You may need additional steps or scripts here based on your deployment strategy
+                sh 'cp -R build/* /var/www/html/my-spa/'
             }
         }
     }
-    post { 
-        always { 
-            mail to: 'upadhyayganesh730@gmail.com',
-            subject: "Job '${JOB_NAME}' (${BUILD_NUMBER}) is waiting for input",
-            body: "Please go to ${BUILD_URL} and verify the build"
-        }
+
+    post {
         success {
-            mail bcc: '', body: """Hi Team,
-
-Build #$BUILD_NUMBER is successful, please go through the url
-
-$BUILD_URL
-
-and verify the details.
-
-Regards,
-DevOps Team""", cc: '', from: '', replyTo: '', subject: 'BUILD SUCCESS NOTIFICATION', to: 'upadhyayganesh730@gmail.com'
+            echo 'SPA build and deployment successful!'
         }
         failure {
-            mail bcc: '', body: """Hi Team,
-            
-Build #$BUILD_NUMBER is unsuccessful, please go through the url
-
-$BUILD_URL
-
-and verify the details.
-
-Regards,
-DevOps Team""", cc: '', from: '', replyTo: '', subject: 'BUILD FAILED NOTIFICATION', to: 'upadhyayganesh730@gmail.com'
+            echo 'SPA build or deployment failed!'
         }
     }
 }
