@@ -1,8 +1,9 @@
 pipeline{
     stage('SCM Checkout'){
+        https://github.com/hsenag2328/SMP.git
     }
     stage('Compile-Package'){
-        //Get maven home path
+        /usr/bin/mvn
         def mvnHome = tool name: maven-3.6.3', type: 'maven'
         sh "${mvnHome}/bin/mvn package
     }
