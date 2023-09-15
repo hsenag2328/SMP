@@ -1,10 +1,8 @@
 pipeline {
     agent { label 'Built-In Node'  }
-    // ...
     stages {
         stage('Build Application') {
             steps {
-                sh 'mvn -f jenkins/java-tomcat-sample/pom.xml clean package'
             }
             post {
                 success {
