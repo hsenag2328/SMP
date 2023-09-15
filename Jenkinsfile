@@ -91,7 +91,7 @@ $BUILD_URL
 and verify the details.
 
 Regards,
-DevOps Team""", cc: '', from: '', replyTo: '', subject: 'BUILD FAILED NOTIFICATION', to: 'upadhyayganesh730@gmail.com'
+Ganesh""", cc: '', from: '', replyTo: '', subject: 'BUILD FAILED NOTIFICATION', to: 'upadhyayganesh730@gmail.com'
         }
             
     }
